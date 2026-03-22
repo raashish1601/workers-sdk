@@ -18,6 +18,7 @@ import { kVoid } from "../../runtime";
 import { Log } from "../../shared";
 import { getGlobalWranglerCachePath } from "../../shared/wrangler";
 import {
+	getMiniflareObjectBindings,
 	getUserBindingServiceName,
 	Plugin,
 	ProxyNodeBinding,
@@ -69,7 +70,7 @@ export const BROWSER_RENDERING_PLUGIN: Plugin<
 			[options.browserRendering.binding]: new ProxyNodeBinding(),
 		};
 	},
-	async getServices({ options }) {
+	async getServices({ options, unsafeStickyBlobs }) {
 		if (!options.browserRendering) {
 			return [];
 		}
@@ -97,6 +98,7 @@ export const BROWSER_RENDERING_PLUGIN: Plugin<
 							],
 							bindings: [
 								WORKER_BINDING_SERVICE_LOOPBACK,
+								...getMiniflareObjectBindings(unsafeStickyBlobs),
 								{
 									name: "BrowserSession",
 									durableObjectNamespace: {

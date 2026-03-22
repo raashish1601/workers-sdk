@@ -1332,11 +1332,41 @@ export class Miniflare {
 			} else if (url.pathname === "/browser/status") {
 				const sessionId = url.searchParams.get("sessionId");
 				assert(sessionId !== null, "Missing sessionId query parameter");
-				const process = this.#browserProcesses.get(sessionId);
-				response = new Response(null, { status: process ? 200 : 410 });
+				const browserProcess = this.#browserProcesses.get(sessionId);
+				const alive =
+					browserProcess !== undefined &&
+					browserProcess.nodeProcess.exitCode === null;
+				response = new Response(null, { status: alive ? 200 : 410 });
+			} else if (url.pathname === "/browser/close") {
+				const sessionId = url.searchParams.get("sessionId");
+				assert(sessionId !== null, "Missing sessionId query parameter");
+				const browserProcess = this.#browserProcesses.get(sessionId);
+				if (!browserProcess) {
+					response = new Response("Session not found", { status: 404 });
+				} else {
+					this.#browserProcesses.delete(sessionId);
+					await browserProcess.close().catch(() => {
+						// oh well, process might already be dead
+					});
+					response = new Response(null, { status: 200 });
+				}
 			} else if (url.pathname === "/browser/sessionIds") {
-				const sessionIds = this.#browserProcesses.keys();
-				response = Response.json(Array.from(sessionIds));
+				const sessionIds: string[] = [];
+				for (const [id, p] of this.#browserProcesses) {
+					// Check if process is actually alive (signal 0 tests existence)
+					const pid = p.nodeProcess.pid;
+					if (typeof pid !== "number") {
+						continue;
+					}
+					try {
+						process.kill(pid, 0);
+						sessionIds.push(id);
+					} catch {
+						// Process is dead — remove from map
+						this.#browserProcesses.delete(id);
+					}
+				}
+				response = Response.json(sessionIds);
 			} else if (url.pathname === "/core/store-temp-file") {
 				const prefix = url.searchParams.get("prefix");
 				const folder = prefix ? `files/${prefix}` : "files";

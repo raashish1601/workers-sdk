@@ -3,8 +3,11 @@ import { brandColor, dim } from "@cloudflare/cli/colors";
 import * as recast from "recast";
 import { mergeObjectProperties, transformFile } from "../c3-vendor/codemod";
 import { installPackages } from "../c3-vendor/packages";
-import { Framework } from ".";
-import type { ConfigurationOptions, ConfigurationResults } from ".";
+import { Framework } from "./framework-class";
+import type {
+	ConfigurationOptions,
+	ConfigurationResults,
+} from "./framework-class";
 
 const updateNuxtConfig = (projectPath: string) => {
 	const configFile = path.join(projectPath, "nuxt.config.ts");

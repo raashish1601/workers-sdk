@@ -6,9 +6,12 @@ import { spinner } from "@cloudflare/cli/interactive";
 import { parseJSONC } from "@cloudflare/workers-utils";
 import { dedent } from "../../utils/dedent";
 import { installPackages } from "../c3-vendor/packages";
-import { Framework } from ".";
-import type { ConfigurationOptions, ConfigurationResults } from ".";
+import { Framework } from "./framework-class";
 import type { PackageManager } from "../../package-manager";
+import type {
+	ConfigurationOptions,
+	ConfigurationResults,
+} from "./framework-class";
 
 export class Angular extends Framework {
 	async configure({

@@ -28,17 +28,16 @@ import {
 	YarnPackageManager,
 } from "../package-manager";
 import { PAGES_CONFIG_CACHE_FILENAME } from "../pages/constants";
+import { getFrameworkClass, isKnownFramework } from "./frameworks";
 import {
-	allKnownFrameworks,
-	allKnownFrameworksIds,
-	getFramework,
-} from "./frameworks/get-framework";
+	allFrameworksInfos,
+	staticFramework,
+} from "./frameworks/all-frameworks";
 import {
 	getAutoConfigId,
 	getAutoConfigTriggerCommand,
 } from "./telemetry-utils";
 import type { PackageManager } from "../package-manager";
-import type { KnownFrameworkId } from "./frameworks/get-framework";
 import type {
 	AutoConfigDetails,
 	AutoConfigDetailsForNonConfiguredProject,
@@ -90,7 +89,9 @@ export function assertNonConfigured(
 class MultipleFrameworksCIError extends FatalError {
 	constructor(frameworks: string[]) {
 		super(
-			dedent`Wrangler was unable to automatically configure your project to work with Cloudflare, since multiple frameworks were found: ${frameworks.join(", ")}.
+			dedent`Wrangler was unable to automatically configure your project to work with Cloudflare, since multiple frameworks were found: ${frameworks.join(
+				", "
+			)}.
 
 				To fix this issue either:
 				  - check your project's configuration to make sure that the target framework
@@ -299,7 +300,7 @@ function findDetectedFramework(
 	}
 
 	const settingsForOnlyKnownFrameworks = settings.filter(({ framework }) =>
-		allKnownFrameworksIds.has(framework.id as KnownFrameworkId)
+		isKnownFramework(framework.id)
 	);
 
 	if (settingsForOnlyKnownFrameworks.length === 0) {
@@ -319,8 +320,8 @@ function findDetectedFramework(
 	}
 
 	if (settingsForOnlyKnownFrameworks.length === 2) {
-		const frameworkIdsFound = new Set<KnownFrameworkId>(
-			settings.map(({ framework }) => framework.id as KnownFrameworkId)
+		const frameworkIdsFound = new Set<string>(
+			settings.map(({ framework }) => framework.id)
 		);
 
 		const viteId = "vite";
@@ -416,7 +417,7 @@ export async function getDetailsForAutoConfig({
 	const { detectedFramework, packageManager, isWorkspaceRoot } =
 		await detectFramework(projectPath, wranglerConfig);
 
-	const framework = getFramework(detectedFramework?.framework?.id);
+	const framework = getFrameworkClass(detectedFramework?.framework?.id);
 	const packageJsonPath = resolve(projectPath, "package.json");
 
 	let packageJson: PackageJSON | undefined;
@@ -684,26 +685,26 @@ export async function confirmAutoConfigDetails(
 	const frameworkId = await select(
 		"What framework is your application using?",
 		{
-			choices: allKnownFrameworks.map((f) => ({
+			choices: allFrameworksInfos.map((f) => ({
 				title: f.name,
 				value: f.id,
 				description:
-					f.id === "static"
+					f.id === staticFramework.id
 						? "No framework at all, or a static framework such as Vite, React or Gatsby."
 						: `The ${f.name} JavaScript framework`,
 			})),
-			defaultOption: allKnownFrameworks.findIndex((framework) => {
+			defaultOption: allFrameworksInfos.findIndex((framework) => {
 				if (!autoConfigDetails?.framework) {
 					// If there is no framework already detected let's default to the static one
 					// (note: there should always be a framework at this point)
-					return framework.id === "static";
+					return framework.id === staticFramework.id;
 				}
 				return autoConfigDetails.framework.id === framework.id;
 			}),
 		}
 	);
 
-	updatedAutoConfigDetails.framework = getFramework(frameworkId);
+	updatedAutoConfigDetails.framework = getFrameworkClass(frameworkId);
 
 	const outputDir = await prompt(
 		"What directory contains your applications' output/asset files?",

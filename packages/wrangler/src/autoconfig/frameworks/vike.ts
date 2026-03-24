@@ -5,9 +5,12 @@ import { brandColor } from "@cloudflare/cli/colors";
 import * as recast from "recast";
 import { transformFile } from "../c3-vendor/codemod";
 import { installPackages } from "../c3-vendor/packages";
+import { Framework } from "./framework-class";
 import { isPackageInstalled } from "./utils/packages";
-import { Framework } from ".";
-import type { ConfigurationOptions, ConfigurationResults } from ".";
+import type {
+	ConfigurationOptions,
+	ConfigurationResults,
+} from "./framework-class";
 import type { types } from "recast";
 
 const b = recast.types.builders;

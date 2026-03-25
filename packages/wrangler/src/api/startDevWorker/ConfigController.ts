@@ -3,9 +3,9 @@ import path from "node:path";
 import { resolveDockerHost } from "@cloudflare/containers-shared";
 import {
 	configFileName,
+	getTodaysCompatDate,
 	getDisableConfigWatching,
 	getDockerPath,
-	getLocalWorkerdCompatibilityDate,
 	UserError,
 } from "@cloudflare/workers-utils";
 import { watch } from "chokidar";
@@ -477,9 +477,7 @@ function getDevCompatibilityDate(
 	config: Config | undefined,
 	compatibilityDate = config?.compatibility_date
 ): string {
-	const { date: workerdDate } = getLocalWorkerdCompatibilityDate({
-		projectPath,
-	});
+	const workerdDate = getTodaysCompatDate();
 
 	if (config?.configPath && compatibilityDate === undefined) {
 		logger.warn(

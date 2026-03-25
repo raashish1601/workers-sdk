@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { updateStatus } from "@cloudflare/cli";
 import { blue } from "@cloudflare/cli/colors";
-import { getLocalWorkerdCompatibilityDate } from "@cloudflare/workers-utils";
+import { getTodaysCompatDate } from "@cloudflare/workers-utils";
 import * as recast from "recast";
 import semiver from "semiver";
 import { mergeObjectProperties, transformFile } from "../c3-vendor/codemod";
@@ -88,9 +88,7 @@ function updateViteConfigFile(projectPath: string): void {
 function updateAppConfigFile(projectPath: string): void {
 	const filePath = `app.config.${usesTypescript(projectPath) ? "ts" : "js"}`;
 
-	const { date: compatDate } = getLocalWorkerdCompatibilityDate({
-		projectPath,
-	});
+	const compatDate = getTodaysCompatDate();
 
 	updateStatus(`Updating configuration in ${blue(filePath)}`);
 

@@ -1,6 +1,10 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
-import { FatalError, readFileSync } from "@cloudflare/workers-utils";
+import {
+	FatalError,
+	readFileSync,
+	getTodaysCompatDate,
+} from "@cloudflare/workers-utils";
 import { writeWranglerConfig } from "@cloudflare/workers-utils/test-helpers";
 // eslint-disable-next-line no-restricted-imports
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -25,19 +29,6 @@ import { runWrangler } from "../helpers/run-wrangler";
 import { writeWorkerSource } from "../helpers/write-worker-source";
 import type { Framework } from "../../autoconfig/frameworks";
 import type { MockInstance } from "vitest";
-
-vi.mock("@cloudflare/workers-utils", async (importOriginal) => {
-	const originalModule =
-		// eslint-disable-next-line @typescript-eslint/consistent-type-imports
-		await importOriginal<Awaited<typeof import("@cloudflare/workers-utils")>>();
-	return {
-		...originalModule,
-		getLocalWorkerdCompatibilityDate: vi.fn(() => ({
-			date: "2000-01-01",
-			source: "workerd",
-		})),
-	};
-});
 
 vi.mock("../../package-manager", () => ({
 	getPackageManager() {
@@ -243,7 +234,8 @@ describe("autoconfig (deploy)", () => {
 				{ enableWranglerInstallation: true }
 			);
 
-			expect(std.out).toMatchInlineSnapshot(`
+			expect(std.out.replaceAll(getTodaysCompatDate(), "<current-date>"))
+				.toMatchInlineSnapshot(`
 				"
 				Detected Project Settings:
 				 - Worker Name: my-worker
@@ -263,7 +255,7 @@ describe("autoconfig (deploy)", () => {
 				  {
 				    "$schema": "node_modules/wrangler/config-schema.json",
 				    "name": "my-worker",
-				    "compatibility_date": "2000-01-01",
+				    "compatibility_date": "<current-date>",
 				    "observability": {
 				      "enabled": true
 				    },
@@ -280,11 +272,16 @@ describe("autoconfig (deploy)", () => {
 				[build] Running: echo 'built' > build.txt"
 			`);
 
-			expect(readFileSync("wrangler.jsonc")).toMatchInlineSnapshot(`
+			expect(
+				readFileSync("wrangler.jsonc").replaceAll(
+					getTodaysCompatDate(),
+					"<current-date>"
+				)
+			).toMatchInlineSnapshot(`
 				"{
 				  "$schema": "node_modules/wrangler/config-schema.json",
 				  "name": "my-worker",
-				  "compatibility_date": "2000-01-01",
+				  "compatibility_date": "<current-date>",
 				  "observability": {
 				    "enabled": true
 				  },
@@ -421,7 +418,8 @@ describe("autoconfig (deploy)", () => {
 				packageManager: NpmPackageManager,
 			});
 
-			expect(std.out).toMatchInlineSnapshot(`
+			expect(std.out.replaceAll(getTodaysCompatDate(), "<current-date>"))
+				.toMatchInlineSnapshot(`
 				"
 				Detected Project Settings:
 				 - Worker Name: my-worker
@@ -439,7 +437,7 @@ describe("autoconfig (deploy)", () => {
 				  {
 				    "$schema": "node_modules/wrangler/config-schema.json",
 				    "name": "edited-worker-name",
-				    "compatibility_date": "2000-01-01",
+				    "compatibility_date": "<current-date>",
 				    "observability": {
 				      "enabled": true
 				    },
@@ -453,11 +451,16 @@ describe("autoconfig (deploy)", () => {
 				"
 			`);
 
-			expect(readFileSync("wrangler.jsonc")).toMatchInlineSnapshot(`
+			expect(
+				readFileSync("wrangler.jsonc").replaceAll(
+					getTodaysCompatDate(),
+					"<current-date>"
+				)
+			).toMatchInlineSnapshot(`
 				"{
 				  "$schema": "node_modules/wrangler/config-schema.json",
 				  "name": "edited-worker-name",
-				  "compatibility_date": "2000-01-01",
+				  "compatibility_date": "<current-date>",
 				  "observability": {
 				    "enabled": true
 				  },

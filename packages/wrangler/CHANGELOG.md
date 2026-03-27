@@ -1,5 +1,16 @@
 # wrangler
 
+## 4.78.1
+
+### Patch Changes
+
+- [#13079](https://github.com/cloudflare/workers-sdk/pull/13079) [`746858a`](https://github.com/cloudflare/workers-sdk/commit/746858a349c6f322e8a222876671b8ceaadd5bc4) Thanks [@penalosa](https://github.com/penalosa)! - Fix `getPlatformProxy` and `unstable_getMiniflareWorkerOptions` crashing when `assets` is configured without a `directory`
+
+  `getPlatformProxy` and `unstable_getMiniflareWorkerOptions` now skip asset setup when the config has an `assets` block but no `directory` — instead of throwing "missing required `directory` property". This happens when an external tool like `@cloudflare/vite-plugin` handles asset serving independently.
+
+- Updated dependencies [[`d4c6158`](https://github.com/cloudflare/workers-sdk/commit/d4c61587094a2a2ceee35acfb3619c95e0a993fe)]:
+  - miniflare@4.20260317.4
+
 ## 4.78.0
 
 ### Minor Changes

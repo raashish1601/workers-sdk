@@ -1,5 +1,15 @@
 # @cloudflare/vitest-pool-workers
 
+## 0.13.6
+
+### Patch Changes
+
+- [#13091](https://github.com/cloudflare/workers-sdk/pull/13091) [`6d58f0f`](https://github.com/cloudflare/workers-sdk/commit/6d58f0fc557402821e7602a1174e305a67df3c12) Thanks [@penalosa](https://github.com/penalosa)! - Use today's date for the RTTI compat date query instead of a hardcoded `"2023-12-01"`, so newly added Node.js builtin modules are recognized by the module fallback service.
+
+- Updated dependencies [[`746858a`](https://github.com/cloudflare/workers-sdk/commit/746858a349c6f322e8a222876671b8ceaadd5bc4), [`d4c6158`](https://github.com/cloudflare/workers-sdk/commit/d4c61587094a2a2ceee35acfb3619c95e0a993fe)]:
+  - wrangler@4.78.1
+  - miniflare@4.20260317.4
+
 ## 0.13.5
 
 ### Patch Changes

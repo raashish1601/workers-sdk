@@ -32,6 +32,7 @@ const BrowserRenderingSchema = z.object({
 	remoteProxyConnectionString: z
 		.custom<RemoteProxyConnectionString>()
 		.optional(),
+	headful: z.boolean().optional(),
 });
 
 export const BrowserRenderingOptionsSchema = z.object({
@@ -120,10 +121,12 @@ export const BROWSER_RENDERING_PLUGIN: Plugin<
 
 export async function launchBrowser({
 	browserVersion,
+	headful,
 	log,
 	tmpPath,
 }: {
 	browserVersion: string;
+	headful?: boolean;
 	log: Log;
 	tmpPath: string;
 }) {
@@ -202,9 +205,7 @@ export async function launchBrowser({
 		"--password-store=basic",
 		"--use-mock-keychain",
 		`--disable-features=${disabledFeatures.join(",")}`,
-		"--headless=new",
-		"--hide-scrollbars",
-		"--mute-audio",
+		...(headful ? [] : ["--headless=new", "--hide-scrollbars", "--mute-audio"]),
 		"--disable-extensions",
 		"about:blank",
 		"--remote-debugging-port=0",
